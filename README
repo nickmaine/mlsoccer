@@ -1,0 +1,26 @@
+mlsoccer is a drupal module that is written as a solution to an interview challenge. The interview challenge is below, the module should sufficientltly satisfy the challenge. The module is self contaiined and shouldn't have any dependency issues.
+
+The Challenge
+I have attached a very recent copy of the XML that drives our standings page on mlssoccer.com. Take this file and recreate the standings list as seen here: http://www.mlssoccer.com/standings and the Supporter's Shield race here: http://www.mlssoccer.com/standings/supporters-shield.
+
+Requirements:
+Create two separate views that show all the available data fields. One view is the East/West Conference standings. The other is the Supporter's Shield.
+Only build the tables. Do not worry about any of the other parts of the page. We also do not need to see the legend displayed down below or the date stamp above.
+Draw a red line under the top 5 teams in each conference on the standings page and the top team on the Supporter's Shield page.
+Make your table sortable by any of the header columns.
+Add an X in front of teams that have secured a position in the playoffs. The (simplified) rules for this are:
+All teams will play a total of 34 games. Current games played is in the <Played> tag.
+Points for winning: 3
+Points for draw: 1
+Points for loss: 0
+If a team is mathematically guaranteed to be in the top five of their conference, they should have an x added in front of their name (e.g. x 0 - Sounders FC)
+This is a schedule naive implementation. In the real world, team schedule can potential impact chances to secure a playoff spot. For this exercise, just assume all teams can win each of their remaining games.
+Rules:
+You may use any language and development platform of your choice (though we prefer PHP/Node.js/Javascript). Please provide us with instructions to build/run your solution. If you use .NET, we will need you to host the working example somewhere so we can try it out.
+You may use any resources you wish. This includes books, Google, friends, magic. Whatever.
+We will ask you questions about your code as part of your interview.
+We will also have you make changes to your code to implement randoms feature that we come up with on the spot.
+Take as long as you need. When you are done, send me the completed code and we will review and let you know about next steps.
+If you have any questions, just send me an email.
+We don't expect perfection. Just a reasonable, defensible approach to solving the problems.
+

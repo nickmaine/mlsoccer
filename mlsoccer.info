@@ -1,0 +1,6 @@
+name            = "Nick Maine's MLS Module"
+description     = "Reads in a locally stored MLS XML standings file and displays sortable tables."
+core            = "7.x"
+scripts[] 			= "js/datatables/media/js/jquery.dataTables.js"
+scripts[] 			= "js/mlsoccer.js"
+

@@ -1,0 +1,144 @@
+<?
+
+/**
+ * Implementation of hook_init()
+ */
+function mlsoccer_init() {
+	drupal_add_css(drupal_get_path('module', 'mlsoccer') . "/css/mlsoccer.css", array('group' => CSS_THEME, 'weight' => 9999));
+}
+
+/**
+ * Implementation of hook_menu()
+ */
+function mlsoccer_menu() {
+	$items['mlsoccer/standings'] = array(
+		'title' => 'Standings',
+		'page callback'	=> 'mlsoccer_standings_page',
+		'type'	=> MENU_NORMAL_ITEM,
+		'access arguments'	=> array('access content'),
+		'weight' => -2
+	);
+	$items['mlsoccer/standings/supporters-shield'] = array(
+		'title' => 'Supporters\' Shield Race',
+		'page callback'	=> 'mlsoccer_supporters_shield_page',
+		'type'	=> MENU_NORMAL_ITEM,
+		'access arguments'	=> array('access content'),
+		'weight' => -1
+	);
+	$items['mlsoccer/ajax/standings'] = array(
+		'page callback'	=> 'mlsoccer_ajax_standings',
+		'type'	=> MENU_CALLBACK,
+		'access arguments'	=> array('access content'),
+	);
+	return $items;
+}
+
+/**
+ * Implementation of hook_theme()
+ */
+function mlsoccer_theme($existing, $type, $theme, $path){
+  return array(
+    'mlsoccer-standings' => array(
+	    'template'  => 'theme/mlsoccer-standings',
+    ),
+    'mlsoccer-supporters-shield' => array(
+	    'template'  => 'theme/mlsoccer-supporters-shield',
+    )
+  );
+}
+
+/**
+ * Menu callback for the MLS standings page
+ * @return html themed standings page
+ */
+function mlsoccer_standings_page() {
+	return theme('mlsoccer-standings');
+}
+
+/**
+ * Menu callback for the MLS supporters shield page
+ * @return html themed supporters shield page
+ */
+function mlsoccer_supporters_shield_page() {
+	return theme('mlsoccer-supporters-shield');
+}
+
+/**
+ * AJAX callback for standings data
+ * @return json data for js datatables
+ */
+function mlsoccer_ajax_standings() {
+	$data = mlsoccer_get_data();
+	drupal_json_output($data);
+}
+
+/**
+ * Get MLS XML data and create an array that can be used by datatables
+ * that will be JSON encoded
+ * @return array neccesary values to create MLS standings pages
+ */
+function mlsoccer_get_data() {
+	$standing_data = array();
+
+	$data = mlsoccer_get_xml();
+
+	$xml = simplexml_load_string($data);
+
+	$regional_team_standings = $xml->xpath("//TeamStandings");
+	foreach($regional_team_standings as $team_standings) {
+		foreach($team_standings as $team_standing) {
+			$uID = (string)$team_standing->attributes()->TeamRef;
+			if (empty($uID)) {
+				continue;
+			}
+
+			$team_name = $xml->xpath("//Team[@uID='$uID']");
+
+			$standing_data['aaData'][] = array(
+				//'TeamRef' => $uID,
+				'Conference' => (string)$team_standings->Round->Name['id'][0],
+				'Club' => (string)$team_name[0]->Name,
+				'Against' => intval($team_standing->Standing->Against),
+				//'AwayAgainst' => intval($team_standing->Standing->AwayAgainst),
+				//'AwayDrawn' => intval($team_standing->Standing->AwayDrawn),
+				'AwayFor' => intval($team_standing->Standing->AwayFor),
+				//'AwayLost' => intval($team_standing->Standing->AwayLost),
+				//'AwayPlayed' => intval($team_standing->Standing->AwayPlayed),
+				//'AwayPoints' => intval($team_standing->Standing->AwayPoints),
+				//'AwayPosition' => intval($team_standing->Standing->AwayPosition),
+				//'AwayWon' => intval($team_standing->Standing->AwayWon),
+				'Drawn' => intval($team_standing->Standing->Drawn),
+				'For' => intval($team_standing->Standing->For),
+				//'HomeAgainst' => intval($team_standing->Standing->HomeAgainst),
+				//'HomeDrawn' => intval($team_standing->Standing->HomeDrawn),
+				'HomeFor' => intval($team_standing->Standing->HomeFor),
+				//'HomeLost' => intval($team_standing->Standing->HomeLost),
+				//'HomePlayed' => intval($team_standing->Standing->HomePlayed),
+				//'HomePoints' => intval($team_standing->Standing->HomePoints),
+				//'HomePosition' => intval($team_standing->Standing->HomePosition),
+				//'HomeWon' => intval($team_standing->Standing->HomeWon),
+				'Lost' => intval($team_standing->Standing->Lost),
+				'Played' => intval($team_standing->Standing->Played),
+				'Points' => intval($team_standing->Standing->Points),
+				'Position' => intval($team_standing->Standing->Position),
+				//'StartDayPosition' => intval($team_standing->Standing->StartDayPosition),
+				'Won' => intval($team_standing->Standing->Won),
+				'GoalDifference' => intval($team_standing->Standing->For) - intval($team_standing->Standing->Against),
+				'HomeGoalDifference' => intval($team_standing->Standing->HomeFor) - intval($team_standing->Standing->HomeAgainst),
+				'RoadGoalDifference' => intval($team_standing->Standing->AwayFor) - intval($team_standing->Standing->AwayAgainst),
+			);
+		}
+	}
+
+	return $standing_data;
+}
+
+/**
+ * Get a locally stored MLS XML data file
+ * TODO: load from a dynamic source and orremove hard coded value
+ * @return string an XML string
+ */
+function mlsoccer_get_xml() {
+	$data = file_get_contents(drupal_get_path('module', 'mlsoccer') . '/data/srml-98-2012-standings.xml');
+	return $data;
+}
