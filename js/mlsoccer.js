@@ -6,7 +6,7 @@
 					"bProcessing": true,
 					"bPaginate": false,
 					"bInfo":false,
-					"sAjaxSource": "http://devel/mlsoccer/ajax/standings",
+					"sAjaxSource": "/mlsoccer/ajax/standings",
 					"aoColumns": [
 						{ "mData": "Conference", "bVisible": false },
 						{ "mData": "Position" },
@@ -41,7 +41,7 @@
 					"bProcessing": true,
 					"bPaginate": false,
 					"bInfo":false,
-					"sAjaxSource": "http://devel/mlsoccer/ajax/standings",
+					"sAjaxSource": "/mlsoccer/ajax/standings",
 					"aoColumns": [
 						{ "mData": "Conference", "bVisible": false },
 						{ "mData": "Position" },
@@ -77,7 +77,7 @@
 					"bPaginate": false,
 					"bInfo":false,
 					"bFilter":false,
-					"sAjaxSource": "http://devel/mlsoccer/ajax/standings",
+					"sAjaxSource": "/mlsoccer/ajax/standings",
 					"aoColumns": [
 						{ "mData": "Conference", "bVisible": false },
 						{ "mData": "Position" },
