@@ -97,10 +97,14 @@
 					],
 					"aaSorting": [[ 3, "desc" ]],
 					"fnRowCallback": function( nRow, aData, iDisplayIndex ) {
-						$("td:first", nRow).html(iDisplayIndex +1);
 						sortInfo = this.fnSettings().aaSorting;
+						if (sortInfo[0][0] == 3 && sortInfo[0][1] == "desc") {
+							$("td:first", nRow).html(iDisplayIndex +1);
+							aData['Position'] = iDisplayIndex + 1;
+						}
+
 						if (iDisplayIndex == 0 && (sortInfo[0][0] == 1 && sortInfo[0][1] == "asc" || sortInfo[0][0] == 3 && sortInfo[0][1] == "desc") ) {
-							nRow.className = nRow.className + " playoff-cut";
+							$(nRow).addClass("playoff-cut");
 						}
 						else  {
 							$(nRow).removeClass("playoff-cut");
@@ -111,14 +115,14 @@
 			});
 
 			function setPlayOffSecured(nRow, aData) {
-				if (aData['Position'] <= 5) {
+				if (aData['Clinched'] == true) {
 					$("td:eq(1)", nRow).html("x " + aData['Club']);
 				}
 			}
 
 			function setPlayoffCut(cut, sortInfo, nRow, aData) {
 				if (aData['Position'] == cut && sortInfo[0][0] == 1 && sortInfo[0][1] == "asc" ) {
-					nRow.className = nRow.className + " playoff-cut";
+					$(nRow).addClass("playoff-cut");
 				}
 				else if (aData['Position'] == cut) {
 					$(nRow).removeClass("playoff-cut");

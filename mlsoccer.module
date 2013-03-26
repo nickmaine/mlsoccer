@@ -95,50 +95,75 @@ function mlsoccer_get_data() {
 			$team_name = $xml->xpath("//Team[@uID='$uID']");
 
 			$standing_data['aaData'][] = array(
-				//'TeamRef' => $uID,
+				'TeamRef' => $uID,
 				'Conference' => (string)$team_standings->Round->Name['id'][0],
 				'Club' => (string)$team_name[0]->Name,
 				'Against' => intval($team_standing->Standing->Against),
-				//'AwayAgainst' => intval($team_standing->Standing->AwayAgainst),
-				//'AwayDrawn' => intval($team_standing->Standing->AwayDrawn),
 				'AwayFor' => intval($team_standing->Standing->AwayFor),
-				//'AwayLost' => intval($team_standing->Standing->AwayLost),
-				//'AwayPlayed' => intval($team_standing->Standing->AwayPlayed),
-				//'AwayPoints' => intval($team_standing->Standing->AwayPoints),
-				//'AwayPosition' => intval($team_standing->Standing->AwayPosition),
-				//'AwayWon' => intval($team_standing->Standing->AwayWon),
 				'Drawn' => intval($team_standing->Standing->Drawn),
 				'For' => intval($team_standing->Standing->For),
-				//'HomeAgainst' => intval($team_standing->Standing->HomeAgainst),
-				//'HomeDrawn' => intval($team_standing->Standing->HomeDrawn),
 				'HomeFor' => intval($team_standing->Standing->HomeFor),
-				//'HomeLost' => intval($team_standing->Standing->HomeLost),
-				//'HomePlayed' => intval($team_standing->Standing->HomePlayed),
-				//'HomePoints' => intval($team_standing->Standing->HomePoints),
-				//'HomePosition' => intval($team_standing->Standing->HomePosition),
-				//'HomeWon' => intval($team_standing->Standing->HomeWon),
 				'Lost' => intval($team_standing->Standing->Lost),
 				'Played' => intval($team_standing->Standing->Played),
 				'Points' => intval($team_standing->Standing->Points),
 				'Position' => intval($team_standing->Standing->Position),
-				//'StartDayPosition' => intval($team_standing->Standing->StartDayPosition),
 				'Won' => intval($team_standing->Standing->Won),
 				'GoalDifference' => intval($team_standing->Standing->For) - intval($team_standing->Standing->Against),
 				'HomeGoalDifference' => intval($team_standing->Standing->HomeFor) - intval($team_standing->Standing->HomeAgainst),
 				'RoadGoalDifference' => intval($team_standing->Standing->AwayFor) - intval($team_standing->Standing->AwayAgainst),
+				'Clinched' => FALSE,
 			);
 		}
 	}
+
+	calcStandings($standing_data);
 
 	return $standing_data;
 }
 
 /**
  * Get a locally stored MLS XML data file
- * TODO: load from a dynamic source and orremove hard coded value
+ * TODO: load from a dynamic source and/or remove hard coded value
+ * and read as a variable_get from an admin setting
  * @return string an XML string
  */
 function mlsoccer_get_xml() {
 	$data = file_get_contents(drupal_get_path('module', 'mlsoccer') . '/data/srml-98-2012-standings.xml');
 	return $data;
+}
+
+/**
+ * Calculate whether a club will be in the top 5 in points at end of season,
+ * if so mark Clinched element as TRUE.
+ */
+
+function calcStandings(&$standing_data) {
+	$win_points = 3;
+	$games_total = 34;
+
+	$east_standings = array();
+	$west_standings = array();
+	foreach($standing_data['aaData'] as $club_data) {
+		$final_points = $club_data['Points'] + (($games_total - $club_data['Played']) * $win_points);
+		if ($club_data['Conference'] == "East") {
+			$east_standings[$club_data['TeamRef']] = $final_points;
+		}
+		else {
+			$west_standings[$club_data['TeamRef']] = $final_points;
+		}
+	}
+
+	arsort($east_standings);
+	arsort($west_standings);
+	$east_standings = array_slice($east_standings, 0, 5);
+	$west_standings = array_slice($west_standings, 0, 5);
+
+	foreach($standing_data['aaData'] as $idx => $club_data) {
+		if ($club_data['Conference'] == "East" && array_key_exists($club_data['TeamRef'], $east_standings)) {
+			$standing_data['aaData'][$idx]['Clinched'] = TRUE;
+		}
+		else if ($club_data['Conference'] == "West" && array_key_exists($club_data['TeamRef'], $west_standings)) {
+			$standing_data['aaData'][$idx]['Clinched'] = TRUE;
+		}
+	}
 }
